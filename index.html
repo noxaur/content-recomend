@@ -1,0 +1,1398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Connect your YouTube, Netflix, and Spotify watch history. Save what is great. Share with friends.">
+  <title>ContentRecomend</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    /* ═══════════════════════════════════════════
+       DESIGN TOKENS — The Verge System
+       ═══════════════════════════════════════════ */
+    :root {
+      /* Surface — Dark (default) */
+      --canvas: #131313;
+      --surface-slate: #2d2d2d;
+      --surface-elevated: #3a3a3a;
+      --image-frame: #313131;
+
+      /* Brand Hazards */
+      --jelly-mint: #3cffd0;
+      --console-mint: #309875;
+      --ultraviolet: #5200ff;
+      --purple-rule: #3d00bf;
+
+      /* Text */
+      --primary-text: #ffffff;
+      --secondary-text: #949494;
+      --muted-text: #e9e9e9;
+      --inverted-text: #131313;
+      --deep-link-blue: #3860be;
+
+      /* Interactive */
+      --focus-cyan: #1eaedb;
+      --dim-gray: #8c8c8c;
+
+      /* Borders */
+      --border-subtle: #2d2d2d;
+      --border-default: #ffffff;
+      --border-strong: #3cffd0;
+
+      /* Radius Scale */
+      --r-input: 2px;
+      --r-nested: 4px;
+      --r-card: 20px;
+      --r-feature: 24px;
+      --r-pill: 24px;
+      --r-cta: 30px;
+      --r-outlined: 40px;
+      --r-circle: 50%;
+
+      /* Typography */
+      --font-display: 'Anton', Impact, sans-serif;
+      --font-body: 'Space Grotesk', Helvetica, Arial, sans-serif;
+      --font-mono: 'Space Mono', 'Courier New', Courier, monospace;
+
+      /* Spacing */
+      --s1: 4px;
+      --s2: 8px;
+      --s3: 12px;
+      --s4: 16px;
+      --s5: 20px;
+      --s6: 24px;
+      --s8: 32px;
+      --s10: 40px;
+      --s12: 48px;
+      --s14: 56px;
+      --s16: 64px;
+      --s20: 80px;
+    }
+
+    /* Light Mode — Scene: reader at a desk in daylight, crisp editorial feel */
+    [data-theme="light"] {
+      --canvas: #f5f3ef;
+      --surface-slate: #e8e5e0;
+      --surface-elevated: #ffffff;
+      --image-frame: #d4d1cb;
+
+      --primary-text: #0a0a0a;
+      --secondary-text: #4a4843;
+      --muted-text: #2a2823;
+      --inverted-text: #f5f3ef;
+
+      --border-subtle: #7a7771;
+      --border-default: #0a0a0a;
+      --border-strong: #157a55;
+    }
+
+    /* ═══════════════════════════════════════════
+       RESET & BASE
+       ═══════════════════════════════════════════ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--canvas);
+      color: var(--primary-text);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      line-height: 1.5;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    a:hover { color: var(--deep-link-blue); }
+
+    img { display: block; max-width: 100%; }
+
+    button { font-family: inherit; }
+
+    /* Focus visible */
+    :focus-visible {
+      outline: 2px solid var(--focus-cyan);
+      outline-offset: 2px;
+    }
+
+    /* ═══════════════════════════════════════════
+       TYPOGRAPHY
+       ═══════════════════════════════════════════ */
+    .wordmark {
+      font-family: var(--font-display);
+      font-size: clamp(28px, 4vw, 40px);
+      font-weight: 900;
+      color: var(--primary-text);
+      line-height: 0.90;
+      letter-spacing: 1px;
+      transition: color 150ms ease;
+    }
+    .wordmark:hover { color: var(--deep-link-blue); }
+
+    .display {
+      font-family: var(--font-display);
+      font-size: clamp(40px, 7vw, 72px);
+      font-weight: 900;
+      line-height: 0.90;
+      color: var(--primary-text);
+    }
+
+    .display-sm {
+      font-family: var(--font-display);
+      font-size: clamp(28px, 4vw, 48px);
+      font-weight: 900;
+      line-height: 0.95;
+      color: var(--primary-text);
+    }
+
+    .whisper {
+      font-family: var(--font-body);
+      font-size: clamp(16px, 2vw, 20px);
+      font-weight: 300;
+      text-transform: uppercase;
+      letter-spacing: 1.9px;
+      color: var(--jelly-mint);
+    }
+
+    .kicker {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1.8px;
+      color: var(--jelly-mint);
+    }
+
+    .mono-label {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--secondary-text);
+    }
+
+    .mono-label-sm {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 1.1px;
+      color: var(--secondary-text);
+    }
+
+    .headline {
+      font-family: var(--font-body);
+      font-weight: 700;
+      color: var(--primary-text);
+      transition: color 150ms ease;
+    }
+    .headline:hover { color: var(--deep-link-blue); }
+
+    .deck {
+      font-size: 16px;
+      color: var(--secondary-text);
+      line-height: 1.5;
+    }
+
+    /* ═══════════════════════════════════════════
+       COMPONENTS
+       ═══════════════════════════════════════════ */
+
+    /* Buttons */
+    .btn-mint {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      background: var(--jelly-mint);
+      color: var(--inverted-text);
+      border: none;
+      border-radius: var(--r-pill);
+      padding: 10px 24px;
+      cursor: pointer;
+      transition: background 180ms ease, box-shadow 180ms ease;
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .btn-mint:hover {
+      background: #2de0b8;
+      box-shadow: 0 0 0 1px var(--console-mint);
+    }
+    .btn-mint:focus-visible {
+      background: var(--focus-cyan);
+      color: var(--primary-text);
+      outline: 1px solid var(--ultraviolet);
+    }
+
+    .btn-slate {
+      font-family: var(--font-body);
+      font-size: 16px;
+      font-weight: 400;
+      background: var(--surface-slate);
+      color: var(--muted-text);
+      border: none;
+      border-radius: var(--r-pill);
+      padding: 10px 24px;
+      cursor: pointer;
+      transition: background 180ms ease, box-shadow 180ms ease, color 180ms ease;
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .btn-slate:hover {
+      background: var(--surface-elevated, var(--canvas));
+      color: var(--primary-text);
+      box-shadow: 0 0 0 1px var(--border-subtle);
+    }
+
+    .btn-outlined {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      background: transparent;
+      color: var(--jelly-mint);
+      border: 1px solid var(--jelly-mint);
+      border-radius: var(--r-outlined);
+      padding: 10px 20px;
+      cursor: pointer;
+      transition: background 150ms ease, color 150ms ease;
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .btn-outlined:hover {
+      background: var(--jelly-mint);
+      color: var(--inverted-text);
+    }
+
+    .btn-outlined-uv {
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 400;
+      background: transparent;
+      color: var(--primary-text);
+      border: 1px solid var(--ultraviolet);
+      border-radius: var(--r-cta);
+      padding: 10px 20px;
+      cursor: pointer;
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-sm {
+      padding: 6px 12px;
+      font-size: 10px;
+      min-height: 32px;
+    }
+
+    .btn-theme-toggle {
+      background: transparent;
+      border: 1px solid var(--border-subtle);
+      color: var(--secondary-text);
+      border-radius: var(--r-pill);
+      padding: 6px 12px;
+      cursor: pointer;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      min-height: 32px;
+      transition: background 150ms ease, color 150ms ease, border-color 150ms ease;
+    }
+    .btn-theme-toggle:hover {
+      background: var(--surface-slate);
+      color: var(--muted-text);
+    }
+
+    /* Cards */
+    .card {
+      background: var(--surface-elevated, var(--canvas));
+      border: 1px solid var(--border-default);
+      border-radius: var(--r-card);
+      padding: var(--s5);
+      transition: color 150ms ease;
+    }
+    .card .headline:hover { color: var(--deep-link-blue); }
+
+    .card-slate {
+      background: var(--surface-slate);
+      border-radius: var(--r-card);
+      padding: var(--s5);
+    }
+
+    /* Color-block Tiles */
+    .tile-mint {
+      background: var(--jelly-mint);
+      border-radius: var(--r-card);
+      padding: var(--s6);
+      color: var(--inverted-text);
+    }
+    .tile-mint .headline { color: var(--inverted-text); }
+    .tile-mint .headline:hover { color: var(--inverted-text); }
+    .tile-mint .mono-label { color: rgba(19,19,19,0.7); }
+
+    .tile-uv {
+      background: rgba(82,0,255,0.9);
+      border-radius: var(--r-card);
+      padding: var(--s6);
+      color: var(--primary-text);
+    }
+    .tile-uv .headline { color: var(--primary-text); }
+    .tile-uv .headline:hover { color: var(--primary-text); }
+    .tile-uv .mono-label { color: rgba(255,255,255,0.85); }
+
+    .tile-white {
+      background: var(--primary-text);
+      border-radius: var(--r-card);
+      padding: var(--s6);
+      color: var(--inverted-text);
+    }
+    .tile-white .headline { color: var(--inverted-text); }
+    .tile-white .headline:hover { color: var(--inverted-text); }
+    .tile-white .mono-label { color: var(--secondary-text); }
+
+    /* Thumbnails */
+    .thumb {
+      background: var(--surface-slate);
+      border-radius: var(--r-nested);
+      aspect-ratio: 16/9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--secondary-text);
+      font-family: var(--font-mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      border: 1px solid var(--image-frame);
+      overflow: hidden;
+    }
+
+    /* Avatars */
+    .avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--r-circle);
+      background: var(--surface-slate);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-mono);
+      font-size: 14px;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: var(--secondary-text);
+      flex-shrink: 0;
+    }
+    .avatar.sm { width: 28px; height: 28px; font-size: 10px; }
+    .avatar.xs { width: 24px; height: 24px; font-size: 8px; }
+    .avatar.lg { width: 64px; height: 64px; font-size: 24px; }
+
+    /* Badges */
+    .badge {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      padding: 4px 10px;
+      border-radius: var(--r-card);
+      display: inline-block;
+    }
+    .badge-yt { background: #cc0000; color: #ffffff; }
+    .badge-nf { background: #b20710; color: #ffffff; }
+    .badge-sp { background: #14803a; color: #ffffff; }
+    .badge-tw { background: #772ce8; color: #ffffff; }
+
+    /* Tags */
+    .tag {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1.8px;
+      padding: 4px 10px;
+      background: var(--surface-slate);
+      border-radius: var(--r-card);
+      color: var(--secondary-text);
+      cursor: pointer;
+      border: none;
+      transition: background 150ms ease, color 150ms ease;
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .tag:hover { background: var(--dim-gray); }
+    .tag.active { background: var(--jelly-mint); color: var(--inverted-text); }
+
+    /* Inputs */
+    .input {
+      width: 100%;
+      padding: 10px 14px;
+      background: var(--surface-elevated, var(--canvas));
+      border: 1px solid var(--border-default);
+      border-radius: var(--r-input);
+      color: var(--primary-text);
+      font-family: var(--font-body);
+      font-size: 15px;
+      outline: none;
+      transition: border-color 150ms ease;
+      min-height: 44px;
+    }
+    .input:focus { border-color: var(--jelly-mint); }
+    .input::placeholder { color: var(--secondary-text); }
+
+    /* Toggles */
+    .toggle {
+      width: 44px;
+      height: 24px;
+      background: var(--surface-slate);
+      border-radius: 12px;
+      position: relative;
+      cursor: pointer;
+      transition: background 150ms ease;
+      flex-shrink: 0;
+    }
+    .toggle.on { background: var(--jelly-mint); }
+    .toggle::after {
+      content: '';
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      background: var(--primary-text);
+      border-radius: var(--r-circle);
+      top: 3px;
+      left: 3px;
+      transition: transform 150ms ease;
+    }
+    .toggle.on::after { transform: translateX(20px); }
+
+    /* Divider */
+    .divider {
+      height: 1px;
+      background: var(--surface-slate);
+      margin: var(--s6) 0;
+    }
+
+    /* ═══════════════════════════════════════════
+       STORYSTREAM RAIL
+       ═══════════════════════════════════════════ */
+    .stream {
+      position: relative;
+      padding-left: 48px;
+    }
+    .stream::before {
+      content: '';
+      position: absolute;
+      left: 16px;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      background: var(--purple-rule);
+    }
+    .stream-item {
+      position: relative;
+      margin-bottom: var(--s4);
+    }
+    .stream-item:last-child { margin-bottom: 0; }
+    .stream-time {
+      position: absolute;
+      left: -48px;
+      top: var(--s2);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--secondary-text);
+      width: 40px;
+      text-align: right;
+    }
+
+    /* ═══════════════════════════════════════════
+       NAVIGATION
+       ═══════════════════════════════════════════ */
+    .top-nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--canvas);
+      border-bottom: 1px solid var(--surface-slate);
+      padding: var(--s3) var(--s4);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .top-nav .nav-actions {
+      display: flex;
+      gap: var(--s2);
+      align-items: center;
+    }
+
+    .page-nav {
+      position: sticky;
+      bottom: 0;
+      z-index: 100;
+      background: var(--canvas);
+      border-top: 1px solid var(--surface-slate);
+      padding: var(--s2) var(--s4);
+      display: flex;
+      gap: var(--s1);
+      align-items: center;
+      justify-content: center;
+    }
+    .page-nav .nav-label {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1.8px;
+      color: var(--secondary-text);
+      margin-right: var(--s2);
+    }
+    .page-nav .nav-btn {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      padding: 6px 12px;
+      border: 1px solid var(--surface-slate);
+      background: transparent;
+      color: var(--secondary-text);
+      border-radius: var(--r-card);
+      cursor: pointer;
+      transition: background 150ms ease, color 150ms ease;
+      min-height: 44px;
+    }
+    .page-nav .nav-btn:hover {
+      background: var(--surface-slate);
+      color: var(--muted-text);
+    }
+    .page-nav .nav-btn.active {
+      background: var(--jelly-mint);
+      border-color: var(--jelly-mint);
+      color: var(--inverted-text);
+    }
+    .page-nav .nav-sep {
+      width: 1px;
+      height: 24px;
+      background: var(--surface-slate);
+      margin: 0 var(--s1);
+    }
+
+    /* ═══════════════════════════════════════════
+       LAYOUT
+       ═══════════════════════════════════════════ */
+    .page { display: none; }
+    .page.active { display: block; }
+
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: var(--s8) var(--s4) var(--s16);
+    }
+
+    /* ═══════════════════════════════════════════
+       LANDING PAGE — V3: Split Hero
+       ═══════════════════════════════════════════ */
+    .landing .hero-split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--s10);
+      align-items: center;
+      padding: var(--s16) 0;
+    }
+    .landing .hero-content .whisper { margin-bottom: var(--s2); }
+    .landing .hero-content .display { margin-bottom: var(--s4); }
+    .landing .hero-content .deck { margin-bottom: var(--s5); max-width: 480px; }
+
+    .landing .play-frame {
+      border-radius: var(--r-feature);
+      border: 1px solid var(--border-default);
+      overflow: hidden;
+      aspect-ratio: 16/10;
+      background: var(--surface-slate);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    .landing .play-btn {
+      width: 64px;
+      height: 64px;
+      background: var(--jelly-mint);
+      border-radius: var(--r-circle);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform 180ms ease;
+    }
+    .landing .play-btn:hover { transform: scale(1.08); }
+    .landing .play-btn:focus-visible {
+      box-shadow: 0 0 0 3px var(--focus-cyan);
+      outline: none;
+    }
+    .landing .play-btn::after {
+      content: '';
+      width: 0;
+      height: 0;
+      border-left: 20px solid var(--inverted-text);
+      border-top: 12px solid transparent;
+      border-bottom: 12px solid transparent;
+      margin-left: 4px;
+    }
+
+    .landing .features {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--s4);
+      padding: var(--s8) 0 var(--s16);
+    }
+    .landing .features > * { text-align: center; }
+    .landing .features .headline {
+      font-size: 18px;
+      margin-bottom: var(--s1);
+    }
+    .landing .features .deck {
+      font-size: 14px;
+      margin: 0;
+    }
+
+    /* ═══════════════════════════════════════════
+       ACCOUNT PAGE — V1: Dashboard
+       ═══════════════════════════════════════════ */
+    .account .profile-row {
+      display: flex;
+      gap: var(--s5);
+      align-items: center;
+      padding: var(--s8) 0;
+    }
+    .account .profile-row .headline { font-size: 28px; }
+    .account .profile-row .mono-label { margin-top: var(--s1); }
+
+    .account .platform-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: var(--s4);
+      padding-bottom: var(--s8);
+    }
+    .account .platform-grid .card {
+      display: flex;
+      align-items: center;
+      gap: var(--s4);
+    }
+    .account .platform-grid .platform-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--r-card);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+    .account .platform-grid .platform-icon.yt { background: #cc0000; }
+    .account .platform-grid .platform-icon.nf { background: #b20710; }
+    .account .platform-grid .platform-icon.sp { background: #14803a; }
+    .account .platform-grid .platform-info { flex: 1; }
+    .account .platform-grid .platform-info .headline { font-size: 16px; margin-bottom: 2px; }
+    .account .platform-grid .platform-info .mono-label { font-size: 12px; }
+
+    .account .stream-section .kicker { margin-bottom: var(--s4); }
+    .account .stream-section .stream-item .mini {
+      display: flex;
+      gap: var(--s3);
+      align-items: center;
+      padding: var(--s3) var(--s4);
+      background: var(--surface-slate);
+      border-radius: var(--r-card);
+    }
+    .account .stream-section .stream-item .mini .thumb {
+      width: 96px;
+      height: 54px;
+      flex-shrink: 0;
+      border-radius: var(--r-nested);
+    }
+    .account .stream-section .stream-item .mini .headline { font-size: 14px; }
+    .account .stream-section .stream-item .mini .mono-label { font-size: 10px; }
+
+    /* ═══════════════════════════════════════════
+       SCROLL PAGE — V5: Split View
+       ═══════════════════════════════════════════ */
+    .scroll .split-layout {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: var(--s5);
+      height: calc(100vh - 140px);
+    }
+    .scroll .feed-list {
+      overflow-y: auto;
+      padding-right: var(--s2);
+    }
+    .scroll .feed-list .item {
+      display: flex;
+      gap: var(--s3);
+      padding: var(--s3);
+      background: var(--surface-slate);
+      border-radius: var(--r-card);
+      margin-bottom: var(--s2);
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: border-color 150ms ease;
+    }
+    .scroll .feed-list .item:hover { border-color: var(--console-mint); }
+    .scroll .feed-list .item.active { border-color: var(--jelly-mint); }
+    .scroll .feed-list .item .thumb {
+      width: 120px;
+      height: 68px;
+      flex-shrink: 0;
+      border-radius: var(--r-nested);
+      border: none;
+      background: var(--canvas);
+    }
+    .scroll .feed-list .item .text { flex: 1; }
+    .scroll .feed-list .item .text .headline { font-size: 14px; margin-bottom: 2px; }
+    .scroll .feed-list .item .text .mono-label { font-size: 10px; }
+
+    .scroll .detail-panel {
+      background: var(--surface-slate);
+      border-radius: var(--r-feature);
+      padding: var(--s5);
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+    .scroll .detail-panel .thumb {
+      height: 180px;
+      border-radius: var(--r-nested);
+      border: none;
+      background: var(--canvas);
+      margin-bottom: var(--s4);
+    }
+    .scroll .detail-panel .headline { font-size: 22px; margin-bottom: var(--s2); }
+    .scroll .detail-panel .deck {
+      font-size: 14px;
+      color: var(--secondary-text);
+      line-height: 1.5;
+      margin-bottom: var(--s4);
+      flex: 1;
+    }
+    .scroll .detail-panel .meta-row {
+      display: flex;
+      gap: var(--s2);
+      margin-bottom: var(--s4);
+      align-items: center;
+    }
+    .scroll .detail-panel .action-row {
+      display: flex;
+      gap: var(--s2);
+    }
+    .scroll .detail-panel .action-row .btn-mint,
+    .scroll .detail-panel .action-row .btn-outlined { flex: 1; }
+
+    /* ═══════════════════════════════════════════
+       FRIENDS PAGE — V1: Activity Feed
+       ═══════════════════════════════════════════ */
+    .friends .feed {
+      display: flex;
+      flex-direction: column;
+      gap: var(--s4);
+      max-width: 600px;
+      margin: 0 auto;
+      padding: var(--s8) 0;
+    }
+    .friends .feed .post {
+      padding: var(--s4);
+      background: var(--surface-elevated, var(--canvas));
+      border: 1px solid var(--border-default);
+      border-radius: var(--r-card);
+    }
+    .friends .feed .post .post-head {
+      display: flex;
+      align-items: center;
+      gap: var(--s2);
+      margin-bottom: var(--s2);
+    }
+    .friends .feed .post .post-head .info { flex: 1; }
+    .friends .feed .post .post-head .info .headline { font-size: 16px; margin-bottom: 2px; }
+    .friends .feed .post .post-head .info .mono-label { font-size: 11px; }
+    .friends .feed .post .thumb {
+      height: 200px;
+      border-radius: var(--r-card);
+      border: none;
+      margin-bottom: var(--s2);
+    }
+    .friends .feed .post .deck {
+      font-size: 14px;
+      color: var(--secondary-text);
+      margin-bottom: var(--s2);
+    }
+    .friends .feed .post .post-actions {
+      display: flex;
+      gap: var(--s4);
+    }
+    .friends .feed .post .post-actions .act {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--secondary-text);
+      cursor: pointer;
+      border: none;
+      background: none;
+      padding: 12px 0;
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      transition: color 150ms ease;
+    }
+    .friends .feed .post .post-actions .act:hover { color: var(--muted-text); }
+    .friends .feed .post .post-actions .act.liked { color: var(--jelly-mint); }
+
+    .friends .feed .post .comments {
+      margin-top: var(--s2);
+      padding-top: var(--s2);
+      border-top: 1px solid var(--surface-slate);
+    }
+    .friends .feed .post .comments .comment {
+      display: flex;
+      gap: var(--s2);
+      margin-bottom: var(--s2);
+      align-items: flex-start;
+    }
+    .friends .feed .post .comments .comment .text {
+      font-size: 13px;
+      color: var(--secondary-text);
+      line-height: 1.4;
+    }
+    .friends .feed .post .comments .comment .text strong {
+      color: var(--muted-text);
+      font-weight: 600;
+    }
+
+    /* Light mode adjustments */
+    [data-theme="light"] .whisper,
+    [data-theme="light"] .kicker {
+      color: #0d6b45;
+    }
+    [data-theme="light"] .tile-mint {
+      background: #2de0b8;
+    }
+    [data-theme="light"] .tile-mint .mono-label {
+      color: rgba(10,10,10,0.8);
+    }
+    [data-theme="light"] .tag.active {
+      background: #0d6b45;
+      color: #f5f3ef;
+    }
+    [data-theme="light"] .friends .feed .post .post-actions .act.liked {
+      color: #0d6b45;
+    }
+    [data-theme="light"] .page-nav .nav-btn.active {
+      background: #0d6b45;
+      border-color: #0d6b45;
+      color: #f5f3ef;
+    }
+    [data-theme="light"] .friends .feed .post .comments {
+      border-top-color: #7a7771;
+    }
+    [data-theme="light"] .divider {
+      background: #7a7771;
+    }
+    [data-theme="light"] .page-nav .nav-btn {
+      border-color: #7a7771;
+    }
+    [data-theme="light"] .page-nav .nav-btn:hover {
+      background: var(--surface-slate);
+    }
+    [data-theme="light"] .top-nav {
+      border-bottom-color: #7a7771;
+    }
+    [data-theme="light"] .page-nav {
+      border-top-color: #7a7771;
+    }
+    [data-theme="light"] .page-nav .nav-sep {
+      background: #7a7771;
+    }
+
+    /* Light mode outlined button readability */
+    [data-theme="light"] .btn-outlined {
+      color: #0d6b45;
+      border-color: #0d6b45;
+    }
+    [data-theme="light"] .btn-outlined:hover {
+      background: #0d6b45;
+      color: #f5f3ef;
+      border-color: #0d6b45;
+    }
+
+    /* Tile white label contrast fix for dark mode */
+    .tile-white .mono-label {
+      color: #5a5a5a;
+    }
+
+    /* ═══════════════════════════════════════════
+       RESPONSIVE
+       ═══════════════════════════════════════════ */
+
+    /* Tablet and below */
+    @media (max-width: 1023px) {
+      .landing .hero-split {
+        grid-template-columns: 1fr;
+        gap: var(--s8);
+        padding: var(--s12) 0;
+      }
+      .landing .hero-content .deck { max-width: none; }
+
+      .scroll .split-layout {
+        grid-template-columns: 1fr;
+        height: auto;
+      }
+      .scroll .detail-panel { display: none; }
+    }
+
+    /* Mobile */
+    @media (max-width: 767px) {
+      .container { padding: var(--s6) var(--s3) var(--s12); }
+
+      .landing .features {
+        grid-template-columns: 1fr;
+        gap: var(--s3);
+      }
+
+      .account .platform-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .account .profile-row {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .stream { padding-left: 36px; }
+      .stream::before { left: 10px; }
+      .stream-time {
+        left: -36px;
+        width: 30px;
+        font-size: 9px;
+      }
+
+      .friends .feed .post .thumb { height: 160px; }
+    }
+
+    /* Small mobile */
+    @media (max-width: 549px) {
+      .top-nav { padding: var(--s2) var(--s3); }
+      .top-nav .nav-actions { gap: var(--s1); }
+      .top-nav .btn-outlined { padding: 6px 12px; font-size: 10px; min-height: 36px; }
+      .top-nav #theme-toggle { min-height: 36px; }
+
+      .page-nav { padding: var(--s2) var(--s3); }
+      .page-nav .nav-btn { padding: 8px 12px; font-size: 11px; min-height: 44px; }
+
+      .display { font-size: clamp(32px, 10vw, 48px); }
+      .display-sm { font-size: clamp(24px, 7vw, 36px); }
+
+      .btn-mint, .btn-slate, .btn-outlined { padding: 8px 16px; font-size: 10px; }
+    }
+
+    /* ═══════════════════════════════════════════
+       REDUCED MOTION
+       ═══════════════════════════════════════════ */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════════
+       TOP NAVIGATION
+       ═══════════════════════════════════════════ -->
+  <nav class="top-nav" aria-label="Main navigation">
+    <a href="#" class="wordmark" onclick="showPage('landing'); return false;">CR</a>
+    <div class="nav-actions">
+      <button class="btn-outlined btn-sm" onclick="showPage('account'); return false;">Account</button>
+      <button class="btn-theme-toggle" id="theme-toggle" aria-label="Toggle light mode">Light</button>
+      <div class="avatar" role="img" aria-label="User avatar">U</div>
+    </div>
+  </nav>
+
+  <!-- ═══════════════════════════════════════════
+       LANDING PAGE — V3: Split Hero
+       ═══════════════════════════════════════════ -->
+  <main class="page landing active" id="page-landing" aria-label="Landing page">
+    <div class="container">
+      <section class="hero-split">
+        <div class="hero-content">
+          <div class="whisper">Your watch history</div>
+          <h1 class="display">Finally Useful</h1>
+          <p class="deck">Stop losing track of great videos. Connect your accounts, bookmark what matters, and let your friends discover what you love.</p>
+          <button class="btn-mint" onclick="showPage('account')">Start Free</button>
+        </div>
+        <div class="play-frame" role="img" aria-label="Product demo preview">
+          <div class="play-btn" tabindex="0" role="button" aria-label="Play demo video"></div>
+        </div>
+      </section>
+
+      <section class="features" aria-label="Key features">
+        <div class="tile-mint">
+          <h2 class="headline">Connect Everything</h2>
+          <p class="deck">YouTube, Netflix, Spotify, Twitch</p>
+        </div>
+        <div class="card">
+          <h2 class="headline">Save and Share</h2>
+          <p class="deck">Bookmark content, share collections</p>
+        </div>
+        <div class="tile-uv">
+          <h2 class="headline">Discover Together</h2>
+          <p class="deck">See what friends are watching</p>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- ═══════════════════════════════════════════
+       ACCOUNT PAGE — V1: Dashboard
+       ═══════════════════════════════════════════ -->
+  <main class="page account" id="page-account" aria-label="Account dashboard">
+    <div class="container">
+      <section class="profile-row">
+        <div class="avatar lg" role="img" aria-label="User avatar">U</div>
+        <div>
+          <h1 class="headline">@username</h1>
+          <div class="mono-label">Member since 2026 · 247 saves · 12 friends</div>
+        </div>
+      </section>
+
+      <section aria-label="Connected platforms">
+        <div class="platform-grid">
+          <div class="card">
+            <div class="platform-icon yt" aria-hidden="true">▶</div>
+            <div class="platform-info">
+              <div class="headline">YouTube</div>
+              <div class="mono-label">Connected · 1,234 videos</div>
+            </div>
+            <div class="toggle on" role="switch" aria-checked="true" aria-label="YouTube sync enabled" tabindex="0"></div>
+          </div>
+          <div class="card">
+            <div class="platform-icon nf" aria-hidden="true">N</div>
+            <div class="platform-info">
+              <div class="headline">Netflix</div>
+              <div class="mono-label">Connected · 89 titles</div>
+            </div>
+            <div class="toggle on" role="switch" aria-checked="true" aria-label="Netflix sync enabled" tabindex="0"></div>
+          </div>
+          <div class="card">
+            <div class="platform-icon sp" aria-hidden="true">♫</div>
+            <div class="platform-info">
+              <div class="headline">Spotify</div>
+              <div class="mono-label">Not connected</div>
+            </div>
+            <button class="btn-outlined btn-sm">Connect</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="stream-section" aria-label="Recently saved content">
+        <div class="kicker">Recently Saved</div>
+        <div class="stream">
+          <article class="stream-item">
+            <div class="stream-time">2H</div>
+            <div class="mini">
+              <div class="thumb" role="img" aria-label="Building the Future of AI video thumbnail"></div>
+              <div>
+                <div class="headline">Building the Future of AI</div>
+                <div class="mono-label">Saved 2 hours ago · YouTube</div>
+              </div>
+            </div>
+          </article>
+          <article class="stream-item">
+            <div class="stream-time">1D</div>
+            <div class="mini">
+              <div class="thumb" role="img" aria-label="The Social Network film thumbnail"></div>
+              <div>
+                <div class="headline">The Social Network (2010)</div>
+                <div class="mono-label">Saved yesterday · Netflix</div>
+              </div>
+            </div>
+          </article>
+          <article class="stream-item">
+            <div class="stream-time">3D</div>
+            <div class="mini">
+              <div class="thumb" role="img" aria-label="React Conf 2026 Highlights video thumbnail"></div>
+              <div>
+                <div class="headline">React Conf 2026 Highlights</div>
+                <div class="mono-label">Saved 2 days ago · YouTube</div>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- ═══════════════════════════════════════════
+       SCROLL PAGE — V5: Split View
+       ═══════════════════════════════════════════ -->
+  <main class="page scroll" id="page-scroll" aria-label="Content feed">
+    <div class="container" style="padding-bottom: var(--s4);">
+      <div class="split-layout">
+        <div class="feed-list" role="list" aria-label="Saved content list">
+          <div class="item active" role="listitem" tabindex="0" onclick="selectItem(this)" aria-current="true">
+            <div class="thumb" role="img" aria-label="Building the Future of AI video thumbnail"></div>
+            <div class="text">
+              <div class="headline">Building the Future of AI</div>
+              <div class="mono-label">@alex · 2h ago · YouTube</div>
+            </div>
+          </div>
+          <div class="item" role="listitem" tabindex="0" onclick="selectItem(this)">
+            <div class="thumb" role="img" aria-label="The Social Network film thumbnail"></div>
+            <div class="text">
+              <div class="headline">The Social Network (2010)</div>
+              <div class="mono-label">@sam · Yesterday · Netflix</div>
+            </div>
+          </div>
+          <div class="item" role="listitem" tabindex="0" onclick="selectItem(this)">
+            <div class="thumb" role="img" aria-label="Lo-Fi Beats to Code To playlist thumbnail"></div>
+            <div class="text">
+              <div class="headline">Lo-Fi Beats to Code To</div>
+              <div class="mono-label">@jordan · 3d ago · Spotify</div>
+            </div>
+          </div>
+          <div class="item" role="listitem" tabindex="0" onclick="selectItem(this)">
+            <div class="thumb" role="img" aria-label="React Conf 2026 Highlights video thumbnail"></div>
+            <div class="text">
+              <div class="headline">React Conf 2026 Highlights</div>
+              <div class="mono-label">@casey · 5d ago · YouTube</div>
+            </div>
+          </div>
+          <div class="item" role="listitem" tabindex="0" onclick="selectItem(this)">
+            <div class="thumb" role="img" aria-label="Indie Film Festival Winners thumbnail"></div>
+            <div class="text">
+              <div class="headline">Indie Film Festival Winners</div>
+              <div class="mono-label">@alex · 1w ago · Netflix</div>
+            </div>
+          </div>
+          <div class="item" role="listitem" tabindex="0" onclick="selectItem(this)">
+            <div class="thumb" role="img" aria-label="Startup School Keynotes video thumbnail"></div>
+            <div class="text">
+              <div class="headline">Startup School Keynotes</div>
+              <div class="mono-label">@sam · 1w ago · YouTube</div>
+            </div>
+          </div>
+        </div>
+
+        <aside class="detail-panel" aria-label="Content detail">
+          <div class="thumb" role="img" aria-label="Building the Future of AI video preview"></div>
+          <h2 class="headline">Building the Future of AI</h2>
+          <p class="deck">A comprehensive look at where artificial intelligence is heading in 2026 and beyond. Covers LLMs, robotics, and the implications for everyday life.</p>
+          <div class="meta-row">
+            <span class="badge badge-yt">YouTube</span>
+            <span class="mono-label">24:15 · @alex saved 2h ago</span>
+          </div>
+          <div class="action-row">
+            <button class="btn-mint">Save</button>
+            <button class="btn-outlined">Share</button>
+            <button class="btn-slate" aria-label="Add to collection">+</button>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </main>
+
+  <!-- ═══════════════════════════════════════════
+       FRIENDS PAGE — V1: Activity Feed
+       ═══════════════════════════════════════════ -->
+  <main class="page friends" id="page-friends" aria-label="Friends activity feed">
+    <div class="container">
+      <section class="feed" aria-label="Activity feed">
+        <article class="post">
+          <div class="post-head">
+            <div class="avatar" role="img" aria-label="Alex avatar">A</div>
+            <div class="info">
+              <div class="headline">@alex</div>
+              <div class="mono-label">2 hours ago</div>
+            </div>
+            <span class="badge badge-yt">YouTube</span>
+          </div>
+          <div class="thumb" role="img" aria-label="Building the Future of AI video shared by @alex"></div>
+          <p class="deck">This AI talk blew my mind. The part about multi-modal models at 12:30 is incredible.</p>
+          <div class="post-actions">
+            <button class="act liked" aria-label="12 likes">♥ 12</button>
+            <button class="act" aria-label="4 comments">💬 4</button>
+            <button class="act">↗ Share</button>
+            <button class="act">⊕ Save</button>
+          </div>
+          <div class="comments">
+            <div class="comment">
+              <div class="avatar xs" role="img" aria-label="Sam avatar">S</div>
+              <div class="text"><strong>@sam</strong> Added to my watchlist, thanks!</div>
+            </div>
+            <div class="comment">
+              <div class="avatar xs" role="img" aria-label="Jordan avatar">J</div>
+              <div class="text"><strong>@jordan</strong> Same! The robotics demo was wild</div>
+            </div>
+          </div>
+        </article>
+
+        <article class="post">
+          <div class="post-head">
+            <div class="avatar" role="img" aria-label="Sam avatar">S</div>
+            <div class="info">
+              <div class="headline">@sam</div>
+              <div class="mono-label">5 hours ago</div>
+            </div>
+            <span class="badge badge-nf">Netflix</span>
+          </div>
+          <div class="thumb" role="img" aria-label="The Social Network film shared by @sam"></div>
+          <p class="deck">Just finished this. No spoilers but the ending is incredible.</p>
+          <div class="post-actions">
+            <button class="act">♥ 8</button>
+            <button class="act">💬 2</button>
+            <button class="act">↗ Share</button>
+            <button class="act">⊕ Save</button>
+          </div>
+        </article>
+
+        <article class="post">
+          <div class="post-head">
+            <div class="avatar" role="img" aria-label="Jordan avatar">J</div>
+            <div class="info">
+              <div class="headline">@jordan</div>
+              <div class="mono-label">Yesterday</div>
+            </div>
+            <span class="badge badge-sp">Spotify</span>
+          </div>
+          <div class="thumb" role="img" aria-label="Deep work playlist shared by @jordan"></div>
+          <p class="deck">New playlist for deep work sessions. 4 hours of pure focus.</p>
+          <div class="post-actions">
+            <button class="act">♥ 23</button>
+            <button class="act">💬 7</button>
+            <button class="act">↗ Share</button>
+            <button class="act">⊕ Save</button>
+          </div>
+        </article>
+      </section>
+    </div>
+  </main>
+
+  <!-- ═══════════════════════════════════════════
+       PAGE NAVIGATION (prototype only)
+       ═══════════════════════════════════════════ -->
+  <nav class="page-nav" aria-label="Prototype page switcher">
+    <span class="nav-label">Page</span>
+    <button class="nav-btn active" onclick="showPage('landing')">Landing</button>
+    <button class="nav-btn" onclick="showPage('account')">Account</button>
+    <button class="nav-btn" onclick="showPage('scroll')">Scroll</button>
+    <button class="nav-btn" onclick="showPage('friends')">Friends</button>
+  </nav>
+
+  <!-- ═══════════════════════════════════════════
+       INTERACTIONS
+       ═══════════════════════════════════════════ -->
+  <script>
+    function showPage(page) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.getElementById('page-' + page).classList.add('active');
+
+      document.querySelectorAll('.page-nav .nav-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.textContent.trim().toLowerCase() === page);
+      });
+
+      const url = new URL(window.location);
+      url.searchParams.set('page', page);
+      window.history.replaceState({}, '', url);
+    }
+
+    function selectItem(el) {
+      document.querySelectorAll('.feed-list .item').forEach(i => {
+        i.classList.remove('active');
+        i.removeAttribute('aria-current');
+      });
+      el.classList.add('active');
+      el.setAttribute('aria-current', 'true');
+    }
+
+    // Keyboard support for feed items
+    document.querySelectorAll('.feed-list .item').forEach(item => {
+      item.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          selectItem(item);
+        }
+      });
+    });
+
+    // Keyboard support for play button
+    const playBtn = document.querySelector('.play-btn');
+    if (playBtn) {
+      playBtn.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          playBtn.click();
+        }
+      });
+    }
+
+    // Toggle switches
+    document.querySelectorAll('.toggle').forEach(toggle => {
+      toggle.addEventListener('click', () => {
+        const isOn = toggle.classList.toggle('on');
+        toggle.setAttribute('aria-checked', isOn);
+      });
+      toggle.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          toggle.click();
+        }
+      });
+    });
+
+    // Theme toggle
+    const themeToggle = document.getElementById('theme-toggle');
+    function setTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      themeToggle.textContent = theme === 'light' ? 'Dark' : 'Light';
+      localStorage.setItem('cr-theme', theme);
+    }
+    themeToggle.addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme');
+      setTheme(current === 'light' ? 'dark' : 'light');
+    });
+
+    // Auto-detect system preference
+    const saved = localStorage.getItem('cr-theme');
+    if (saved) {
+      setTheme(saved);
+    } else if (window.matchMedia('(prefers-color-scheme: light)').matches) {
+      setTheme('light');
+    }
+
+    // Init from URL
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('page')) showPage(params.get('page'));
+  </script>
+</body>
+</html>
